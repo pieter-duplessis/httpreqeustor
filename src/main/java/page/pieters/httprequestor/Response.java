@@ -2,7 +2,8 @@ package page.pieters.httprequestor;
 
 import java.lang.reflect.Type;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import tools.jackson.databind.ObjectMapper;
 
 public class Response<T> {
@@ -11,7 +12,7 @@ public class Response<T> {
 
     Integer statusCode;
     String rawBody;
-    HashMap<String, String> headers;
+    Map<String, List<String>> headers;
     T body;
 
     @SuppressWarnings("unchecked")
@@ -19,6 +20,7 @@ public class Response<T> {
         try {
             this.rawBody = response.body();
             this.statusCode = response.statusCode();
+            this.headers = response.headers().map();
 
             if (type == String.class) {
                 this.body = (T) this.rawBody;

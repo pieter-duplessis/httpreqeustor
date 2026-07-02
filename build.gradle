@@ -35,7 +35,7 @@ publishing {
             from components.java
             pom {
                 name = 'HttpRequestor'
-                description = 'A lightweight Java library for resolving configuration values from JVM system properties and OS environment variables through a single, consistent API.'
+                description = 'A simplified and lightweight HTTP client library.'
                 url = 'https://pieters.page'
                 licenses {
                     license {

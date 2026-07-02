@@ -14,6 +14,8 @@ public class ParaBuilder {
 
     public static String combineUrl(String baseUrl, String path, HashMap<String, String> parameterMap) {
 
+        if (parameterMap.isEmpty())
+            return baseUrl + path;
         return baseUrl + path + "?" + buildParameterString(parameterMap);
     }
 
