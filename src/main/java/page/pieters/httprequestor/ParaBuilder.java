@@ -22,14 +22,18 @@ public class ParaBuilder {
     private static String buildParameterString(HashMap<String, String> parameterMap) {
 
         StringBuilder sb = new StringBuilder();
+        int currentIndex = 0;
+        int lastIndex = parameterMap.size() - 1;
 
         for (HashMap.Entry<String, String> entry : parameterMap.entrySet()) {
 
-            if (sb.length() == 0) {
-                sb.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
-            } else {
+            if (currentIndex == lastIndex) {
                 sb.append(entry.getKey()).append("=").append(entry.getValue());
+            } else {
+                sb.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
             }
+
+            currentIndex++;
         }
 
         return sb.toString();
