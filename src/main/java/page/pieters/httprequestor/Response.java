@@ -10,10 +10,10 @@ public class Response<T> {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    Integer statusCode;
-    String rawBody;
-    Map<String, List<String>> headers;
-    T body;
+    public Integer statusCode;
+    public String rawBody;
+    public Map<String, List<String>> headers;
+    public T body;
 
     @SuppressWarnings("unchecked")
     Response(HttpResponse<String> response, Type type) {
