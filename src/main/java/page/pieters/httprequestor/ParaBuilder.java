@@ -1,5 +1,7 @@
 package page.pieters.httprequestor;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 /**
@@ -17,6 +19,22 @@ public class ParaBuilder {
         if (parameterMap.isEmpty())
             return baseUrl + path;
         return baseUrl + path + "?" + buildParameterString(parameterMap);
+    }
+
+    public static String buildFormUrlEncodedString(HashMap<String, Object> fields) {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (HashMap.Entry<String, Object> entry : fields.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append("&");
+            }
+            sb.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
+            sb.append("=");
+            sb.append(URLEncoder.encode(String.valueOf(entry.getValue()), StandardCharsets.UTF_8));
+        }
+
+        return sb.toString();
     }
 
     private static String buildParameterString(HashMap<String, String> parameterMap) {

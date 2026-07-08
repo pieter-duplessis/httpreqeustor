@@ -10,9 +10,9 @@ import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.HashMap;
-
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * HttpRequestor - Building HTTP requests
@@ -20,6 +20,7 @@ import java.util.logging.Level;
 public class HttpRequestor<T> {
 
     private static final Logger LOGGER = Logger.getLogger(HttpRequestor.class.getName());
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final HttpClient client;
     private final Builder request = HttpRequest.newBuilder();
@@ -87,6 +88,15 @@ public class HttpRequestor<T> {
         return this;
     }
 
+    public HttpRequestor<T> addRequestField(String key, Object value) {
+
+        if (this.requestFields == null)
+            this.requestFields = new HashMap<>();
+
+        this.requestFields.put(key, value);
+        return this;
+    }
+
     public HttpRequestor<T> setRequestTimeout(Integer requestTimeout) {
         this.requestTimeout = requestTimeout;
         return this;
@@ -98,12 +108,12 @@ public class HttpRequestor<T> {
     }
 
     public Response<T> post() {
-        this.request.POST(HttpRequest.BodyPublishers.ofString("jsonBody"));
+        this.request.POST(buildBodyPublisher());
         return sendRequest();
     }
 
     public Response<T> put() {
-        this.request.PUT(HttpRequest.BodyPublishers.ofString("jsonBody"));
+        this.request.PUT(buildBodyPublisher());
         return sendRequest();
     }
 
@@ -119,10 +129,10 @@ public class HttpRequestor<T> {
                 this.request.GET();
                 break;
             case "POST":
-                this.request.POST(HttpRequest.BodyPublishers.ofString("jsonBody"));
+                this.request.POST(buildBodyPublisher());
                 break;
             case "PUT":
-                this.request.PUT(HttpRequest.BodyPublishers.ofString("jsonBody"));
+                this.request.PUT(buildBodyPublisher());
                 break;
             case "DELETE":
                 this.request.DELETE();
@@ -135,11 +145,32 @@ public class HttpRequestor<T> {
         return sendRequest();
     }
 
+    private HttpRequest.BodyPublisher buildBodyPublisher() {
+
+        try {
+            if (requestFields != null && !requestFields.isEmpty()) {
+                requestHeaders.putIfAbsent("Content-Type", "application/x-www-form-urlencoded");
+                return HttpRequest.BodyPublishers.ofString(ParaBuilder.buildFormUrlEncodedString(requestFields));
+            }
+
+            if (requestBody != null) {
+                requestHeaders.putIfAbsent("Content-Type", "application/json");
+                return HttpRequest.BodyPublishers.ofString(MAPPER.writeValueAsString(requestBody));
+            }
+
+            return HttpRequest.BodyPublishers.noBody();
+
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "HttpRequestor: Failed to build request body", e);
+            return HttpRequest.BodyPublishers.noBody();
+        }
+    }
+
     private Response<T> sendRequest() {
 
         try {
 
-            for (HashMap.Entry<String, String> entry : parameterMap.entrySet()) {
+            for (HashMap.Entry<String, String> entry : requestHeaders.entrySet()) {
                 this.request.header(entry.getKey(), entry.getValue());
             }
 
